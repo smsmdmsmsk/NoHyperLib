@@ -155,54 +155,54 @@ local function SetImage(name:string,image:ImageLabel)
 		image.ImageRectSize = Vector2.new(36, 36)
 		return
 	end
-	
+
 	image.ImageRectOffset = Vector2.new(0,0)
 	image.ImageRectSize = Vector2.new(0,0)
-	
+
 	if name == "settings" then
 		image.Image = "rbxassetid://7734053495"
 	end
-	
+
 	if name == "smartphone" then
 		image.Image = "rbxassetid://7734058979"
 	end
-	
+
 	if name == "crown" then
 		image.Image = "rbxassetid://7733765398"
 	end
-	
+
 	if name == "save" then
 		image.Image = "rbxassetid://7734052335"
 	end
-	
+
 	if name == "hash" then
 		image.Image = "rbxassetid://7733955740"
 	end
-	
+
 	if name == "server" then
 		image.Image = "rbxassetid://7734053426"
 	end
-	
+
 	if name == "option" then
 		image.Image = "rbxassetid://7734021300"
 	end
-	
+
 	if name == "link" then
 		image.Image = "rbxassetid://7733978098"
 	end
-	
+
 	if name == "copy" then
 		image.Image = "rbxassetid://7733764083"
 	end
-	
+
 	if name == "cpu" then
 		image.Image = "rbxassetid://7733765045"
 	end
-	
+
 	if name == "moon" then
 		image.Image = "rbxassetid://7743870134"
 	end
-	
+
 	if name == "wallet" then
 		image.Image = "rbxassetid://7743877573"
 	end
@@ -1373,7 +1373,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 				Ui.Size = UDim2.new(0.44600001, 0, 0.324999988, 0)
 				Ui.ZIndex = 10
 				Ui.Active = true
-				
+
 				UICorner.CornerRadius = UDim.new(0, 4)
 				UICorner.Parent = Ui
 
@@ -1832,12 +1832,12 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 
 		return TabHyper
 	end
-	
+
 	function HyperWindow:NewSize(v)
 		HyperWindow.Size = v
 		MainFrame.Size = v
 	end
-	
+
 	function HyperWindow:AddYoutube(Link:string)
 		if Link:find('https://') then
 			YoutubeButton.Visible = true
@@ -1894,11 +1894,11 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 				Size = HyperWindow.Size,
 				Position = UDim2.fromScale(0.5,0.5)
 			}):Play()
-			
+
 			Tween:Create(CloseButton,TweenInfo.new(tim),{
 				ImageTransparency = 0.1
 			}):Play()
-			
+
 			Tween:Create(Top,TweenInfo.new(tim),{
 				Size = UDim2.new(1.00000012, 0, 0.139001563, 0)
 			}):Play()
@@ -1934,7 +1934,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 			Tween:Create(CloseButton,TweenInfo.new(tim),{
 				ImageTransparency = 1
 			}):Play()
-			
+
 			Tween:Create(MainFrame,TweenInfo.new(tim),{
 				Size = UDim2.new(0.1,100,0.1,50),
 			}):Play()
@@ -1988,16 +1988,18 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 		Status = not Status
 		UIToggle(Status)
 	end)
-
+	
+	local passtime = tick()
 	LogoHub.InputBegan:Connect(function(inp)
 		if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) then
 			oldposcheck = MainFrame.Position
+			passtime = tick() + 0.025
 		end
 	end)
 
 	LogoHub.InputEnded:Connect(function(inp)
 		if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) then
-			if oldposcheck == MainFrame.Position and not Status then
+			if oldposcheck == MainFrame.Position and not Status and tick() > passtime then
 				Status = not Status
 				UIToggle(Status)
 			end
