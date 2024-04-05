@@ -7,9 +7,22 @@ end
 local LocalPlayer = game:GetService('Players').LocalPlayer;
 local Tween = game:GetService('TweenService')
 local Run = game:GetService('RunService')
-local Core = game:FindFirstChild'CoreGui' or (gethui and gethui()) or LocalPlayer.PlayerGui;
+local Core = (gethui and gethui()) or game:FindFirstChild'CoreGui' or LocalPlayer.PlayerGui;
 local UIS = game:GetService('UserInputService')
 local TextService = game:GetService('TextService')
+local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end);
+
+local function cretate_button(asd)
+	local button=Instance.new('TextButton')
+	button.Size=UDim2.new(1,0,1,0)
+	button.BackgroundTransparency=1
+	button.TextTransparency=1
+	button.Text=""
+	button.Parent=asd
+	button.ZIndex=5000
+	return button
+end
+
 
 local function ToDefault(val,def)
 	return val or def
@@ -24,6 +37,8 @@ local NoHyper = {
 		TOUCH = Color3.fromRGB(103, 26, 20),
 		SYSTEM = Color3.fromRGB(225, 57, 44)
 	},
+	AutoUpdate = {},
+	SectionWidth = 9.5
 }
 
 function NoHyper.set_theme(name:string) -- [[ YOU CAN CUSTOM THEME ]]
@@ -249,7 +264,8 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 			NoHyperUI.Enabled = true
 		end
 	end)
-
+	
+	
 	HyperWindow.ScreenSource = NoHyperUI
 
 	NoHyperUI.Name = "NoHyperUI: "..tostring(WindowName)
@@ -257,7 +273,8 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 	NoHyperUI.ResetOnSpawn = false
 	NoHyperUI.IgnoreGuiInset = true
 	NoHyperUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
-
+	ProtectGui(NoHyperUI)
+	
 	MainFrame.Name = "MainFrame"
 	MainFrame.Parent = NoHyperUI
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -759,7 +776,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 			Section.BackgroundColor3 = NoHyper.Theme.SECTION
 			Section.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Section.BorderSizePixel = 0
-			Section.Size = UDim2.new(0.949999988, 0, 0, 33)
+			Section.Size = UDim2.new(NoHyper.SectionWidth, 0, 0, 33)
 			Section.ZIndex = 5
 
 			UICorner.Parent = Section
@@ -856,9 +873,11 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 					end
 				end
 
-				Tween:Create(Section,TweenInfo.new(0.1),{Size = UDim2.new(0.95,0,0,old + 1)}):Play()
+				Tween:Create(Section,TweenInfo.new(0.1),{Size = UDim2.new(NoHyper.SectionWidth,0,0,old + 1)}):Play()
 			end
-
+			
+			table.insert(NoHyper.AutoUpdate,Section_Hyper.update)
+			
 			function Section_Hyper.text(...)
 				TextLabel.Text = tostring(...)
 			end
@@ -1884,7 +1903,8 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 			}):Play()
 		end)
 	end
-
+	
+	local lastposition = MainFrame.Position
 	local function UIToggle(val)
 		local tim = 0.75
 		local item = 0.6
@@ -1937,6 +1957,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 
 			Tween:Create(MainFrame,TweenInfo.new(tim),{
 				Size = UDim2.new(0.1,100,0.1,50),
+				Position = lastposition,
 			}):Play()
 
 			Tween:Create(Top,TweenInfo.new(tim * 1.5),{
@@ -1976,36 +1997,92 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 
 	local Status = true
 	local oldposcheck = MainFrame.Position
-
+	local buton = cretate_button(Frame)
+	
+	buton.Visible = false
+	
 	UIS.InputBegan:Connect(function(cc)
 		if cc.KeyCode == HyperWindow.Toggle then
 			Status = not Status
+			
+			if Status then
+				buton.Visible = false
+			else
+				buton.Visible = true
+			end
+			
 			UIToggle(Status)
 		end
 	end)
 
 	CloseButton.MouseButton1Click:Connect(function()
 		Status = not Status
+		
+		if Status then
+			buton.Visible = false
+		else
+			buton.Visible = true
+		end
+		
 		UIToggle(Status)
 	end)
-	
-	local passtime = tick()
-	LogoHub.InputBegan:Connect(function(inp)
-		if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) then
-			oldposcheck = MainFrame.Position
-			passtime = tick() + 0.025
-		end
+
+	buton.MouseButton1Down:Connect(function(inp)
+		oldposcheck = MainFrame.Position
 	end)
 
-	LogoHub.InputEnded:Connect(function(inp)
-		if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) then
-			if oldposcheck == MainFrame.Position and not Status and tick() > passtime then
-				Status = not Status
-				UIToggle(Status)
+	buton.MouseButton1Up:Connect(function(inp)
+		if oldposcheck == MainFrame.Position and not Status then
+			Status = not Status
+			
+			if Status then
+				buton.Visible = false
+			else
+				buton.Visible = true
 			end
+			
+			UIToggle(Status)
 		end
 	end)
+	
+	
+	spawn(function()
+		local dragToggle = nil
+		local dragSpeed = 0.09
+		local dragStart = nil
+		local startPos = nil
+		
+		local function updateInput(input)
+			local delta = input.Position - dragStart
+			local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			game:GetService('TweenService'):Create(MainFrame, TweenInfo.new(dragSpeed), {Position = position}):Play()
+		end
 
+		buton.InputBegan:Connect(function(input)
+			if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and buton.Visible then 
+				dragToggle = true
+				dragStart = input.Position
+				startPos = MainFrame.Position
+				lastposition = MainFrame.Position
+				
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragToggle = false
+					end
+				end)
+			end
+		end)
+
+		UIS.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch and buton.Visible then
+				if dragToggle then
+					updateInput(input)
+				end
+			end
+		end)
+	end)
+	
 	local dragToggle = nil
 	local dragSpeed = 0.09
 	local dragStart = nil
@@ -2042,4 +2119,15 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 	return HyperWindow
 end
 
+function NoHyper:LoopUpdate()
+	task.spawn(function()
+		while true do task.wait()
+			pcall(function()
+				for i,v in ipairs(NoHyper.AutoUpdate) do task.wait()
+					pcall(v)
+				end
+			end)
+		end
+	end)
+end
 return NoHyper;
