@@ -39,7 +39,7 @@ local NoHyper = {
 		SYSTEM = Color3.fromRGB(225, 57, 44)
 	},
 	AutoUpdate = {},
-	SectionWidth = 9.5
+	SectionWidth = 0.95
 }
 
 function NoHyper.set_theme(name:string) -- [[ YOU CAN CUSTOM THEME ]]
@@ -272,8 +272,8 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 			NoHyperUI.Enabled = true
 		end
 	end)
-	
-	
+
+
 	HyperWindow.ScreenSource = NoHyperUI
 
 	NoHyperUI.Name = tostring("ui.protect.")..tostring(math.random(1,100))..tostring(Random.new():NextNumber(0.1,0.9))..tostring(Random.new():NextNumber(0.1,0.9))..tostring(Random.new():NextNumber(0.1,0.9))
@@ -282,7 +282,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 	NoHyperUI.IgnoreGuiInset = true
 	NoHyperUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
 	ProtectGui(NoHyperUI)
-	
+
 	MainFrame.Name = "MainFrame"
 	MainFrame.Parent = NoHyperUI
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -305,7 +305,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 
 	UICorner.Parent = Frame
 	UICorner.CornerRadius = UDim.new(0,10)
-	
+
 	Contact.Name = "Contact"
 	Contact.Parent = Frame
 	Contact.AnchorPoint = Vector2.new(0.5, 0)
@@ -884,9 +884,9 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 
 				Tween:Create(Section,TweenInfo.new(0.1),{Size = UDim2.new(NoHyper.SectionWidth,0,0,old + 1)}):Play()
 			end
-			
+
 			table.insert(NoHyper.AutoUpdate,Section_Hyper.update)
-			
+
 			function Section_Hyper.text(...)
 				TextLabel.Text = tostring(...)
 			end
@@ -1912,7 +1912,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 			}):Play()
 		end)
 	end
-	
+
 	local lastposition = MainFrame.Position
 	local function UIToggle(val)
 		local tim = 0.75
@@ -2007,32 +2007,32 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 	local Status = true
 	local oldposcheck = MainFrame.Position
 	local buton = cretate_button(Frame)
-	
+
 	buton.Visible = false
-	
+
 	UIS.InputBegan:Connect(function(cc)
 		if cc.KeyCode == HyperWindow.Toggle then
 			Status = not Status
-			
+
 			if Status then
 				buton.Visible = false
 			else
 				buton.Visible = true
 			end
-			
+
 			UIToggle(Status)
 		end
 	end)
 
 	CloseButton.MouseButton1Click:Connect(function()
 		Status = not Status
-		
+
 		if Status then
 			buton.Visible = false
 		else
 			buton.Visible = true
 		end
-		
+
 		UIToggle(Status)
 	end)
 
@@ -2043,23 +2043,23 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 	buton.MouseButton1Up:Connect(function(inp)
 		if oldposcheck == MainFrame.Position and not Status then
 			Status = not Status
-			
+
 			if Status then
 				buton.Visible = false
 			else
 				buton.Visible = true
 			end
-			
+
 			UIToggle(Status)
 		end
 	end)
-	
+
 	spawn(function()
 		local dragToggle = nil
 		local dragSpeed = 0.2
 		local dragStart = nil
 		local startPos = nil
-		
+
 		local function updateInput(input)
 			local delta = input.Position - dragStart
 			local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -2073,7 +2073,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 				dragStart = input.Position
 				startPos = MainFrame.Position
 				lastposition = MainFrame.Position
-				
+
 				input.Changed:Connect(function()
 					if input.UserInputState == Enum.UserInputState.End then
 						dragToggle = false
@@ -2090,7 +2090,7 @@ function NoHyper.new(WindowName,WindowLogo,WindowDescription)
 			end
 		end)
 	end)
-	
+
 	local dragToggle = nil
 	local dragSpeed = 0.13
 	local dragStart = nil
